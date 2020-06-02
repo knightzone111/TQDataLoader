@@ -2,6 +2,9 @@
 TQ DataLoader API Wrapper. Built on tqsdk.    
 https://github.com/shinnytech/tqsdk-python   
 
+## Requirements  
+tqsdk 1.8  
+
 ## Usage 
 Use `download_data` function to create tasks and downloading data.  
 Obtain data in pandas dataframe format using `read_data` function.   
