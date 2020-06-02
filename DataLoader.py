@@ -23,7 +23,7 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str,
     :type start_dt: str, datetime
     :param end_dt: end date
     :type end_dt: str, datetime
-    :param freq: specify data frequency
+    :param freq: one of the data frequency, "tick", "s", "min", "5min", "h", "D"
     :type freq: str
     :param folderpath: folder path of the downloaded data
     :type folderpath: str
