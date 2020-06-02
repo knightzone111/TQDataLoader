@@ -1,10 +1,10 @@
 # TQDataLoader
-TQ DataLoader API Wrapper  
+TQ DataLoader API Wrapper. Built on tqsdk.    
 https://github.com/shinnytech/tqsdk-python   
 
 ## Usage 
-Use `download_data` function to create tasks and downloading data using `tqapi`. 
-Then obtain data in pandas dataframe format using `read_data` function.   
+Use `download_data` function to create tasks and downloading data.  
+Obtain data in pandas dataframe format using `read_data` function.   
 symbol has format "{0}.{1}{2}{3}".format(exchange, root, yy, mm), like "SHFE.rb2010".   
 start_date, end_date are generally in string format "yyyy-mm-dd", though can be in other date format as  well.     
 The freq is one of the following: "tick", "s", "min", "5min", "h", "D"    
