@@ -37,10 +37,14 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str,
     api = TqApi(TqSim())
     download_tasks = {}
 
+    root_sym = symbol_list[0][:-4]
+    folderpath = os.path.join(folderpath, root_sym)
+
     if not os.path.exists(folderpath):
         os.mkdir(folderpath)
 
     for symbol in symbol_list:
+
         task = "{0}_{1}".format(symbol, freq)
         filepath = os.path.join(folderpath, task + '.csv')
         _start_dt = pd.to_datetime(start_dt)
@@ -55,7 +59,7 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str,
 
 
 def read_data(symbol, freq, start_dt:str, end_dt:str, folderpath=Default_Folder, verbose=False):
-    filepath = os.path.join(folderpath, "{0}_{1}.csv".format(symbol, freq))
+    filepath = os.path.join(folderpath, symbol[:-4], "{0}_{1}.csv".format(symbol, freq))
 
     if os.path.exists(filepath):
         _df = pd.read_csv(filepath, parse_dates=['datetime'], index_col=0)
@@ -130,7 +134,7 @@ if __name__ == '__main__':
     #df = read_data('SHFE.rb2010', 'tick')
     #print(df)
 
-    #symlist = get_recent_symbols(datetime.date(2020,6,4), 'SHFE.rb',12)
+    symlist = get_recent_symbols(datetime.date(2020,6,4), 'SHFE.hc',12)
     #data_task = download_data(symlist, "2020-05-25", "2020-06-03", 'D')
     #df_vol = group_view(symlist, 'volume', "2020-05-26", "2020-06-03")
     #print(df_vol)
@@ -138,7 +142,7 @@ if __name__ == '__main__':
     #df_vol.plot(kind = 'bar')
     #plt.show()
 
-    df_view = quick_view("SHFE.rb","volume","2020-06-03")
+    df_view = quick_view("SHFE.hc","volume","2020-06-03")
     print(df_view)
     df_view.plot(kind = 'bar')
     plt.show()
