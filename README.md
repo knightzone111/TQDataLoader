@@ -1,6 +1,4 @@
-# TQDataLoader
-TQ DataLoader API Wrapper  
-https://github.com/shinnytech/tqsdk-python   
+
 
 ## Usage 
 Use `download_data` function to create tasks and downloading data using `tqapi`. 
