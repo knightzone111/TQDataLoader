@@ -54,10 +54,19 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str,
     return download_tasks
 
 
-def read_data(symbol, freq, folderpath=Default_Folder, verbose=False):
+def read_data(symbol, freq, start_dt:str, end_dt:str, folderpath=Default_Folder, verbose=False):
     filepath = os.path.join(folderpath, "{0}_{1}.csv".format(symbol, freq))
+
     if os.path.exists(filepath):
-        _df = pd.read_csv(filepath)
+        _df = pd.read_csv(filepath, parse_dates=['datetime'], index_col=0)
+        if start_dt in _df.index and end_dt in _df.index:
+            _df = _df[start_dt:end_dt]
+        else:
+            if start_dt not in _df.index:
+                raise Exception("{0} is not in the dataset.".format(start_dt))
+            if end_dt not in _df.index:
+                raise Exception("{0} is not in the dataset.".format(end_dt))
+
         if verbose:
             print(_df)
     else:
@@ -65,7 +74,7 @@ def read_data(symbol, freq, folderpath=Default_Folder, verbose=False):
     return _df
 
 
-def get_recent_symbols(trade_date, root, count):
+def get_recent_symbols(trade_date: datetime.date, root: str, count: int):
     y, m = trade_date.year, trade_date.month
     symbol_list = []
     for i in range(count):
@@ -76,8 +85,60 @@ def get_recent_symbols(trade_date, root, count):
     return symbol_list
 
 
+def group_view(symbol_list: List[str], data_type: str, start_dt: str, end_dt: str):
+    """
+    For comparing different contracts statistics.
+    :param symbol_list: a list of string
+    :type symbol_list: List[str]
+    :param data_type: open, high, low, close, volume, open_oi, close_oi
+    :type data_type: str
+    :param start_dt: string of start date
+    :type start_dt: string
+    :param end_dt: string of end date
+    :type end_dt: str
+    :return: a dataframe with index of symbols
+    :rtype: pd.DataFrame
+    """
+    _data = []
+    for symbol in symbol_list:
+        _df = read_data(symbol, 'D', start_dt, end_dt)
+        _data.append((symbol, _df[symbol+'.{0}'.format(data_type)].mean()))
+    df_data = pd.DataFrame(_data, columns=['symbol', data_type])
+    df_data.set_index('symbol', inplace=True)
+    return df_data
+
+def quick_view(root: str, data_type: str, trade_date: str) -> pd.DataFrame:
+    """
+    view data on the trade_date
+    :param root:
+    :type root:
+    :param data_type:
+    :type data_type:
+    :param trade_date:
+    :type trade_date:
+    :return:
+    :rtype:
+    """
+    trade_date = pd.to_datetime(trade_date).date()
+    symlist = get_recent_symbols(trade_date, root, 12)
+    df_data = group_view(symlist, data_type, trade_date, trade_date)
+    return df_data
+
 if __name__ == '__main__':
 
-    data_task = download_data(["SHFE.rb2010"], "2020-06-01", "2020-06-02", 'tick', 'Data')
-    df = read_data('SHFE.rb2010', 'tick')
-    print(df)
+    #data_task = download_data(["SHFE.rb2010"], "2020-06-01", "2020-06-02", 'tick', 'Data')
+    #df = read_data('SHFE.rb2010', 'tick')
+    #print(df)
+
+    #symlist = get_recent_symbols(datetime.date(2020,6,4), 'SHFE.rb',12)
+    #data_task = download_data(symlist, "2020-05-25", "2020-06-03", 'D')
+    #df_vol = group_view(symlist, 'volume', "2020-05-26", "2020-06-03")
+    #print(df_vol)
+    import matplotlib.pyplot as plt
+    #df_vol.plot(kind = 'bar')
+    #plt.show()
+
+    df_view = quick_view("SHFE.rb","volume","2020-06-03")
+    print(df_view)
+    df_view.plot(kind = 'bar')
+    plt.show()
