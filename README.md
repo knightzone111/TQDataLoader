@@ -5,6 +5,13 @@ https://github.com/shinnytech/tqsdk-python
 ## Requirements  
 tqsdk 1.8  
 
+## TO DO  
+- Add in GUI to make it easier for data downloading and data visualization: use dash? bokeh? (web ui?)  
+https://dash.plotly.com/ 
+- a dropdown list of contracts grouped by exchange or market  
+- Add features to display prices, volume, etc...
+
+
 ## Usage 
 Use `download_data` function to create tasks and downloading data.  
 Obtain data in pandas dataframe format using `read_data` function.   
@@ -19,10 +26,9 @@ Example:
     df = read_data('SHFE.rb2010', 'tick')
 ```
 
-## TO DO  
-- Add in GUI to make it easier for data downloading and data visualization: use dash? bokeh? (web ui?)  
-https://dash.plotly.com/ 
-- a dropdown list of contracts grouped by exchange or market  
-- Add features to display prices, volume, etc...
-
- 
+## Available Exchange and Contracts   
+---
+SHFE 
+DCE
+CZCE
+---
