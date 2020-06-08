@@ -27,8 +27,13 @@ Example:
 ```
 
 ## Available Exchange and Contracts   
----
-SHFE 
-DCE
-CZCE
----
+- SHFE 上海期货交易所
+- DCE 大连商品交易所  
+- CZCE  郑州商品交易所  
+- INE 上海能源中心  
+- KQ 快期（所有主连合约，指数)  
+- SSWE 上期所仓单  
+- SSE 上海证券交易所   
+- SZSE 深圳证券交易所  
+
+
