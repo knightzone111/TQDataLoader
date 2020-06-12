@@ -19,8 +19,10 @@ app.layout = html.Div(children=[
     '''),
     dcc.Input(id='symbol', value='SHFE.rb2010', type='text'),
     dcc.Input(id = 'data_type', value='close', type='text'),
+    html.Button('min', id='min_freq'),
+    html.Button('D', id='D_freq'),
     html.Div(id='price-graph'),
-    html.Div(id = 'volume-graph')
+    html.Div(id = 'volume-graph'),
 ])
 
 @app.callback(

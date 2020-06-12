@@ -146,12 +146,12 @@ def quick_view(root: str, data_type: str, trade_date: str) -> pd.DataFrame:
 
 if __name__ == '__main__':
 
-    data_task = download_data(["SHFE.rb2010","SHFE.ni2008", "SHFE.ni2009", ], "2020-01-01", "2020-06-11", 'D')
+    #data_task = download_data(["SHFE.rb2010","SHFE.ni2008", "SHFE.ni2009", ], "2020-01-01", "2020-06-11", 'D')
     #df = read_data('SHFE.rb2010', 'D', "2020-01-10", "2020-06-02")
     #print(df)
 
-    #symlist = get_recent_symbols(datetime.date(2020,6,4), 'SHFE.hc',12)
-    #data_task = download_data(symlist, "2020-05-25", "2020-06-03", 'D')
+    symlist = get_recent_symbols(datetime.date(2020,6,1), 'SHFE.rb',12)
+    data_task = download_data(symlist, "2019-01-05", "2020-06-11", 'D')
     #df_vol = group_view(symlist, 'volume', "2020-05-26", "2020-06-03")
     #print(df_vol)
     #import matplotlib.pyplot as plt
