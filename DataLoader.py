@@ -15,7 +15,7 @@ if not os.path.exists(Default_Folder):
     os.mkdir(Default_Folder)
 
 
-def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str, folderpath: str = Default_Folder):
+def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str):
     """
     :param symbol_list: a list of symbols
     :type symbol_list: List[str]
@@ -34,42 +34,56 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str,
     if freq not in time_map:
         raise Exception("freq entered is not in the time_map.")
 
+    _start_dt = pd.to_datetime(start_dt)
+    _end_dt = pd.to_datetime(end_dt)
+
     api = TqApi(TqSim())
-    download_tasks = {}
 
-    root_sym = symbol_list[0][:-4]
-    folderpath = os.path.join(folderpath, root_sym)
+    root_dict = {}
 
-    if not os.path.exists(folderpath):
-        os.mkdir(folderpath)
-
+    # create root folder
     for symbol in symbol_list:
+        root_sym = symbol[:-4]
 
-        task = "{0}_{1}".format(symbol, freq)
-        filepath = os.path.join(folderpath, task + '.csv')
-        _start_dt = pd.to_datetime(start_dt)
-        _end_dt = pd.to_datetime(end_dt)
-        download_tasks[task] = DataDownloader(api, symbol, time_map[freq], _start_dt, _end_dt, filepath)
+        if root_sym not in root_dict:
+            root_dict[root_sym] = [symbol]
+        else:
+            root_dict[root_sym].append(symbol)
+
+        root_sym_folder = os.path.join(Default_Folder, root_sym)
+
+        if not os.path.exists(root_sym_folder):
+            os.mkdir(root_sym_folder)
+
+
+    for root, symbols in root_dict.items():
+
+        download_tasks = {}
+
+        for symbol in symbols:
+            task = "{0}_{1}".format(symbol, freq)
+            filepath = os.path.join(Default_Folder, root, task + '.csv')
+
+            # create download task
+            download_tasks[task] = DataDownloader(api, symbol, time_map[freq], _start_dt, _end_dt, filepath)
 
     with closing(api):
         while not all([v.is_finished() for v in download_tasks.values()]):
             api.wait_update()
             print("progress: ", {k: ("%.2f%%" % v.get_progress()) for k, v in download_tasks.items()})
+
     return download_tasks
 
 
-def read_data(symbol, freq, start_dt:str, end_dt:str, folderpath=Default_Folder, verbose=False):
-    filepath = os.path.join(folderpath, symbol[:-4], "{0}_{1}.csv".format(symbol, freq))
-
+def read_data(symbol, freq:str, start_dt:str, end_dt:str, verbose=False):
+    filepath = os.path.join(Default_Folder, symbol[:-4], "{0}_{1}.csv".format(symbol, freq))
+    print(filepath)
     if os.path.exists(filepath):
         _df = pd.read_csv(filepath, parse_dates=['datetime'], index_col=0)
-        if start_dt in _df.index and end_dt in _df.index:
-            _df = _df[start_dt:end_dt]
-        else:
-            if start_dt not in _df.index:
-                raise Exception("{0} is not in the dataset.".format(start_dt))
-            if end_dt not in _df.index:
-                raise Exception("{0} is not in the dataset.".format(end_dt))
+        if start_dt is None and end_dt is None:
+            return _df
+
+        _df = _df[start_dt:end_dt]
 
         if verbose:
             print(_df)
@@ -128,21 +142,23 @@ def quick_view(root: str, data_type: str, trade_date: str) -> pd.DataFrame:
     df_data = group_view(symlist, data_type, trade_date, trade_date)
     return df_data
 
+
+
 if __name__ == '__main__':
 
-    #data_task = download_data(["SHFE.rb2010"], "2020-06-01", "2020-06-02", 'tick', 'Data')
-    #df = read_data('SHFE.rb2010', 'tick')
+    data_task = download_data(["SHFE.rb2010","SHFE.ni2008", "SHFE.ni2009", ], "2020-01-01", "2020-06-11", 'D')
+    #df = read_data('SHFE.rb2010', 'D', "2020-01-10", "2020-06-02")
     #print(df)
 
-    symlist = get_recent_symbols(datetime.date(2020,6,4), 'SHFE.hc',12)
+    #symlist = get_recent_symbols(datetime.date(2020,6,4), 'SHFE.hc',12)
     #data_task = download_data(symlist, "2020-05-25", "2020-06-03", 'D')
     #df_vol = group_view(symlist, 'volume', "2020-05-26", "2020-06-03")
     #print(df_vol)
-    import matplotlib.pyplot as plt
+    #import matplotlib.pyplot as plt
     #df_vol.plot(kind = 'bar')
     #plt.show()
 
-    df_view = quick_view("SHFE.hc","volume","2020-06-03")
-    print(df_view)
-    df_view.plot(kind = 'bar')
-    plt.show()
+    # df_view = quick_view("SHFE.hc","volume","2020-06-03")
+    # print(df_view)
+    # df_view.plot(kind = 'bar')
+    # plt.show()
