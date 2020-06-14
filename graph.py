@@ -5,20 +5,28 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 import DataLoader
+import os
+import glob
 
-start_dt = '2020-01-08'
-end_dt = '2020-06-10'
-df = DataLoader.read_data('SHFE.rb2010', 'D', start_dt, end_dt)
-print(df)
+
+# start_dt = '2020-01-08'
+# end_dt = '2020-06-10'
+# df = DataLoader.read_data('SHFE.rb2010', 'D', start_dt, end_dt)
+# print(df)
 
 app = dash.Dash()
+EMPTY_GRAPH = dcc.Graph(id='example-graph',)
+files = glob.glob(os.path.join("Data" + "/SHFE.rb/*.csv"))
+symbols = [os.path.basename(file).split("_")[0] for file in files]
+symbol_options = [{"label": symbol, "value": symbol} for symbol in symbols]
+
 
 app.layout = html.Div(children=[
     html.Div(children='''
         Symbol to graph:
     '''),
-    dcc.Input(id='symbol', value='SHFE.rb2010', type='text'),
-    dcc.Input(id = 'data_type', value='close', type='text'),
+    dcc.Dropdown(id='symbol', options=symbol_options),
+    dcc.Input(id='data_type', value='close', type='text'),
     html.Button('min', id='min_freq'),
     html.Button('D', id='D_freq'),
     html.Div(id='price-graph'),
@@ -30,6 +38,9 @@ app.layout = html.Div(children=[
     [Input(component_id='symbol', component_property='value'), Input(component_id='data_type', component_property='value')]
 )
 def update_price_value(symbol, data_type):
+    if symbol is None:
+        return EMPTY_GRAPH
+
     root = symbol[:-4]
     start_dt = None
     end_dt = None
@@ -53,6 +64,9 @@ def update_price_value(symbol, data_type):
     [Input(component_id='symbol', component_property='value')]
 )
 def update_volume_value(symbol):
+    if symbol is None:
+        return EMPTY_GRAPH
+
     root = symbol[:-4]
     start_dt = None
     end_dt = None
