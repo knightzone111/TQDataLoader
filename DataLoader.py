@@ -64,8 +64,11 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str)
             task = "{0}_{1}".format(symbol, freq)
             filepath = os.path.join(Default_Folder, root, task + '.csv')
 
-            # create download task
-            download_tasks[task] = DataDownloader(api, symbol, time_map[freq], _start_dt, _end_dt, filepath)
+            try:
+                # create download task
+                download_tasks[task] = DataDownloader(api, symbol, time_map[freq], _start_dt, _end_dt, filepath)
+            except Exception as inst:
+                print(inst)
 
     with closing(api):
         while not all([v.is_finished() for v in download_tasks.values()]):
@@ -143,6 +146,13 @@ def quick_view(root: str, data_type: str, trade_date: str) -> pd.DataFrame:
     return df_data
 
 
+def quick_daily_data_download(root_list):
+    for root in root_list:
+        today = datetime.datetime.now()
+        symlist = get_recent_symbols(today, root, 12)
+        start_dt = today - datetime.timedelta(days=360)
+        download_data(symlist, start_dt, today, 'D')
+
 
 if __name__ == '__main__':
 
@@ -150,8 +160,8 @@ if __name__ == '__main__':
     #df = read_data('SHFE.rb2010', 'D', "2020-01-10", "2020-06-02")
     #print(df)
 
-    symlist = get_recent_symbols(datetime.date(2020,6,1), 'SHFE.rb',12)
-    data_task = download_data(symlist, "2019-01-05", "2020-06-11", 'D')
+    #symlist = get_recent_symbols(datetime.date(2020,6,1), 'SHFE.rb',12)
+    #data_task = download_data(symlist, "2019-01-05", "2020-06-11", 'D')
     #df_vol = group_view(symlist, 'volume', "2020-05-26", "2020-06-03")
     #print(df_vol)
     #import matplotlib.pyplot as plt
@@ -162,3 +172,5 @@ if __name__ == '__main__':
     # print(df_view)
     # df_view.plot(kind = 'bar')
     # plt.show()
+
+    quick_daily_data_download(['CZCE.MA'])
