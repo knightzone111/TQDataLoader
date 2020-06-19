@@ -22,9 +22,13 @@ Example:
 
 ## Available Exchange and Contracts   
 - SHFE 上海期货交易所
+    - rb,hc,ni镍,bu沥青,
 - DCE 大连商品交易所  
+    - j焦炭, jm 焦煤, p, pg 液化石油气, 
 - CZCE  郑州商品交易所  
+    - MA 甲醇
 - INE 上海能源中心  
+    - sc 原油
 - KQ 快期（所有主连合约，指数)  
 - SSWE 上期所仓单  
 - SSE 上海证券交易所   
