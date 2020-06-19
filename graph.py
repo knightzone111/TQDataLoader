@@ -80,7 +80,8 @@ def update_price_value(exchanges, symbol, freq):
 
     fig.update_layout(
         title=symbol + ' ' + 'klines',
-        xaxis_rangeslider_visible=False
+        xaxis_rangeslider_visible=True,
+        height = 600
     )
 
     return fig
