@@ -10,51 +10,62 @@ import DataLoader
 import os
 import glob
 
-# start_dt = '2020-01-08'
-# end_dt = '2020-06-10'
-# df = DataLoader.read_data('SHFE.rb2010', 'D', start_dt, end_dt)
-# print(df)
 
-app = dash.Dash()
-EMPTY_GRAPH = dcc.Graph(id='example-graph', )
-files = glob.glob(os.path.join("Data" + "/SHFE.rb/*.csv"))
-symbols = [os.path.basename(file).split("_")[0] for file in files]
-symbol_options = [{"label": symbol, "value": symbol} for symbol in symbols]
+DEFAULT_DATA_FOLDER = 'Data'
+default_freq = 'D'
 
+app = dash.Dash("DataViewer")
+
+
+# exchange list
 exchange_list = ['SHFE', 'DCE', 'CZCE', 'INE', 'KQ', 'SSWE', 'SSE', 'SZSE']
 exchange_options = [{"label": ex, "value": ex} for ex in exchange_list]
 
-# candle stick
-
+# frequency
+freq_list = ["tick", "s", "min", "5min", "h", "D"]
+freq_options = [{"label": f, "value": f} for f in freq_list]
 
 app.layout = html.Div(children=[
-    html.Div(children='''
-        Symbol to graph:
-    '''),
-    dcc.Checklist(id='exchanges', options=exchange_options),
-    dcc.Dropdown(id='symbol', options=symbol_options, style={'width': "40%"}),
-    dcc.Input(id='data_type', value='close', type='text'),
-    dcc.Input(id='freq', value='D', type='text'),
 
-    html.Button('min', id='min_freq'),
-    html.Button('D', id='D_freq'),
-    html.Div(id='price-graph'),
-    html.Div(id='volume-graph'),
+    dcc.Checklist(id='exchanges', options=exchange_options, ),
+    dcc.Dropdown(id='symbol', options=[], style={'width': "40%"}, placeholder="Symbol"),
+    dcc.Dropdown(id='freq', options=freq_options, style={'width': "40%"}, value = 'D'),
+    dcc.Graph(id = 'price_graph', figure={}),
+    dcc.Graph(id = 'volume_graph', figure={}),
 ])
+
+@app.callback(
+    Output(component_id='symbol', component_property = 'options'),
+    [Input(component_id='exchanges', component_property='value')]
+)
+def get_available_symbols(exchanges):
+    #print("exchanges:", exchanges)
+    all_files = []
+
+    if exchanges is None:
+        return []
+
+
+    for exchange in exchanges:
+        ex_files = glob.glob(os.path.join(DEFAULT_DATA_FOLDER, "{0}.*/*_{1}.csv".format(exchange, default_freq)))
+        #print("paths:", ex_files)
+        all_files.extend(ex_files)
+
+    all_symbols = [os.path.basename(file).split("_")[0] for file in all_files]
+    symbol_options = [{"label": symbol, "value": symbol} for symbol in all_symbols]
+
+    return symbol_options
 
 
 @app.callback(
-    Output(component_id='price-graph', component_property='children'),
+    Output(component_id='price_graph', component_property='figure'),
     [Input(component_id='exchanges', component_property='value'),
      Input(component_id='symbol', component_property='value'),
-     Input(component_id='data_type', component_property='value'),
      Input(component_id='freq', component_property='value')]
 )
-def update_price_value(exchanges, symbol, data_type, freq):
-    print(exchanges)
+def update_price_value(exchanges, symbol, freq):
     if symbol is None:
-        return EMPTY_GRAPH
-
+        return {}
     root = symbol[:-4]
     start_dt = None
     end_dt = None
@@ -68,40 +79,36 @@ def update_price_value(exchanges, symbol, data_type, freq):
     )])
 
     fig.update_layout(
-        title=symbol,
+        title=symbol + ' ' + 'klines',
         xaxis_rangeslider_visible=False
     )
 
-    return dcc.Graph(
-        id='example-graph',
-        figure=fig
-    )
+    return fig
 
 
 @app.callback(
-    Output(component_id='volume-graph', component_property='children'),
+    Output(component_id='volume_graph', component_property='figure'),
     [Input(component_id='symbol', component_property='value')]
 )
 def update_volume_value(symbol):
     if symbol is None:
-        return EMPTY_GRAPH
+        return {}
 
     root = symbol[:-4]
     start_dt = None
     end_dt = None
     df = DataLoader.read_data(symbol, 'D', start_dt, end_dt)
 
-    return dcc.Graph(
-        id='example-graph',
-        figure={
-            'data': [
-                {'x': df.index, 'y': df[symbol + '.volume'], 'type': 'bar', 'name': symbol}
-            ],
-            'layout': {
-                'title': symbol + ' volume'
-            }
+    fig_dict=dict({
+        'data': [
+            {'x': df.index, 'y': df[symbol + '.volume'], 'type': 'bar', 'name': symbol}
+        ],
+        'layout': {
+            'title': symbol + ' volume'
         }
-    )
+    })
+    fig = go.Figure(fig_dict)
+    return fig
 
 
 if __name__ == '__main__':
