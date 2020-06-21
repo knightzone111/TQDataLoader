@@ -96,6 +96,7 @@ def read_data(symbol, freq:str, start_dt:str, end_dt:str, verbose=False):
 
 
 def get_recent_symbols(trade_date: datetime.date, root: str, count: int):
+    trade_date = pd.to_datetime(trade_date).date()
     y, m = trade_date.year, trade_date.month
     symbol_list = []
     for i in range(count):
@@ -160,7 +161,8 @@ if __name__ == '__main__':
     #df = read_data('SHFE.rb2010', 'D', "2020-01-10", "2020-06-02")
     #print(df)
 
-    #symlist = get_recent_symbols(datetime.date(2020,6,1), 'SHFE.rb',12)
+    symlist = get_recent_symbols("2020.06.01", 'SHFE.rb',12)
+    print(symlist)
     #data_task = download_data(symlist, "2019-01-05", "2020-06-11", 'D')
     #df_vol = group_view(symlist, 'volume', "2020-05-26", "2020-06-03")
     #print(df_vol)
@@ -173,4 +175,4 @@ if __name__ == '__main__':
     # df_view.plot(kind = 'bar')
     # plt.show()
 
-    quick_daily_data_download(['CZCE.MA'])
+    #quick_daily_data_download(['DCE.jm'])
