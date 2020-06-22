@@ -1,6 +1,8 @@
 # TQDataLoader
-TQ DataLoader API Wrapper. Built on tqsdk.    
-https://github.com/shinnytech/tqsdk-python   
+TQ DataLoader API Wrapper. Built on tqsdk.     
+https://github.com/shinnytech/tqsdk-python    
+
+数据下载，数据可视化，数据分析工具。 
 
 ## Requirements  
 tqsdk 1.8  
