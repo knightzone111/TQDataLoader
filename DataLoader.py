@@ -1,9 +1,11 @@
 from tqsdk import TqApi, TqSim
 from tqsdk.tools import DataDownloader
 from contextlib import closing
-import datetime
+from datetime import datetime, timedelta, date
 import os
 import pandas as pd
+from dateutil.relativedelta import relativedelta
+
 
 from typing import List
 
@@ -55,7 +57,6 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str)
         if not os.path.exists(root_sym_folder):
             os.mkdir(root_sym_folder)
 
-
     for root, symbols in root_dict.items():
 
         download_tasks = {}
@@ -78,7 +79,7 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str)
     return download_tasks
 
 
-def read_data(symbol, freq:str, start_dt:str, end_dt:str, verbose=False):
+def read_data(symbol, freq: str, start_dt: str, end_dt: str, verbose=False):
     filepath = os.path.join(Default_Folder, symbol[:-4], "{0}_{1}.csv".format(symbol, freq))
     print(filepath)
     if os.path.exists(filepath):
@@ -95,16 +96,33 @@ def read_data(symbol, freq:str, start_dt:str, end_dt:str, verbose=False):
     return _df
 
 
-def get_recent_symbols(trade_date: datetime.date, root: str, count: int):
+def get_fm_date(cur_date, settlement_day, relative_month=1):
+    ct_year, ct_mon, ct_day = cur_date.year, cur_date.month, cur_date.day
+    if ct_day < settlement_day:
+        fm_date = cur_date
+    else:
+        fm_date = cur_date + relativedelta(months=relative_month)
+    return fm_date
+
+
+def get_recent_symbols(trade_date, root: str, count: int, settlement_day: int = 15):
     trade_date = pd.to_datetime(trade_date).date()
-    y, m = trade_date.year, trade_date.month
+    contract_dates = []
     symbol_list = []
+    relative_map = {}
+
+    fm = get_fm_date(trade_date, settlement_day)
+
     for i in range(count):
-        if m + i <= 12:
-            symbol_list.append(root + datetime.date(y, m + i, 15).strftime("%y%m"))
-        else:
-            symbol_list.append(root + datetime.date(y + 1, (m + i) % 12, 15).strftime("%y%m"))
-    return symbol_list
+        contract_date = fm + relativedelta(months=i)
+        contract_dates.append(contract_date)
+
+        sym = root + contract_date.strftime("%y%m")
+        symbol_list.append(sym)
+        relative_map[sym] = i
+
+
+    return symbol_list, relative_map
 
 
 def group_view(symbol_list: List[str], data_type: str, start_dt: str, end_dt: str):
@@ -124,10 +142,11 @@ def group_view(symbol_list: List[str], data_type: str, start_dt: str, end_dt: st
     _data = []
     for symbol in symbol_list:
         _df = read_data(symbol, 'D', start_dt, end_dt)
-        _data.append((symbol, _df[symbol+'.{0}'.format(data_type)].mean()))
+        _data.append((symbol, _df[symbol + '.{0}'.format(data_type)].mean()))
     df_data = pd.DataFrame(_data, columns=['symbol', data_type])
     df_data.set_index('symbol', inplace=True)
     return df_data
+
 
 def quick_view(root: str, data_type: str, trade_date: str) -> pd.DataFrame:
     """
@@ -149,30 +168,29 @@ def quick_view(root: str, data_type: str, trade_date: str) -> pd.DataFrame:
 
 def quick_daily_data_download(root_list):
     for root in root_list:
-        today = datetime.datetime.now()
+        today = datetime.now()
         symlist = get_recent_symbols(today, root, 12)
-        start_dt = today - datetime.timedelta(days=360)
+        start_dt = today - timedelta(days=360)
         download_data(symlist, start_dt, today, 'D')
 
 
 if __name__ == '__main__':
+    # data_task = download_data(["SHFE.rb2010","SHFE.ni2008", "SHFE.ni2009", ], "2020-01-01", "2020-06-11", 'D')
+    # df = read_data('SHFE.rb2010', 'D', "2020-01-10", "2020-06-02")
+    # print(df)
 
-    #data_task = download_data(["SHFE.rb2010","SHFE.ni2008", "SHFE.ni2009", ], "2020-01-01", "2020-06-11", 'D')
-    #df = read_data('SHFE.rb2010', 'D', "2020-01-10", "2020-06-02")
-    #print(df)
-
-    symlist = get_recent_symbols("2020.06.01", 'SHFE.rb',12)
+    symlist = get_recent_symbols("2020.06.01", 'SHFE.rb', 12)
     print(symlist)
-    #data_task = download_data(symlist, "2019-01-05", "2020-06-11", 'D')
-    #df_vol = group_view(symlist, 'volume', "2020-05-26", "2020-06-03")
-    #print(df_vol)
-    #import matplotlib.pyplot as plt
-    #df_vol.plot(kind = 'bar')
-    #plt.show()
+    # data_task = download_data(symlist, "2019-01-05", "2020-06-11", 'D')
+    # df_vol = group_view(symlist, 'volume', "2020-05-26", "2020-06-03")
+    # print(df_vol)
+    # import matplotlib.pyplot as plt
+    # df_vol.plot(kind = 'bar')
+    # plt.show()
 
     # df_view = quick_view("SHFE.hc","volume","2020-06-03")
     # print(df_view)
     # df_view.plot(kind = 'bar')
     # plt.show()
 
-    #quick_daily_data_download(['DCE.jm'])
+    # quick_daily_data_download(['DCE.jm'])

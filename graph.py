@@ -45,10 +45,8 @@ def get_available_symbols(exchanges):
     if exchanges is None:
         return []
 
-
     for exchange in exchanges:
         ex_files = glob.glob(os.path.join(DEFAULT_DATA_FOLDER, "{0}.*/*_{1}.csv".format(exchange, default_freq)))
-        #print("paths:", ex_files)
         all_files.extend(ex_files)
 
     all_symbols = [os.path.basename(file).split("_")[0] for file in all_files]
