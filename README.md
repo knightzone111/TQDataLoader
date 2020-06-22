@@ -38,4 +38,7 @@ Example:
 - SSE 上海证券交易所   
 - SZSE 深圳证券交易所  
 
-
+## Resources  
+Why Term structure plot is important?  
+Term structure in commodity products  
+https://legacy.farmdoc.illinois.edu/nccc134/conf_2016/pdf/Etienne_Mattos_NCCC-134_2016.pdf
