@@ -60,6 +60,7 @@ fig.update_layout(autosize=True,
                            "type": "category",
                            "zeroline": False,
                            "categoryorder": 'array',
+                           "nticks": 12,
                            "categoryarray": list(reversed(xlist))
                        },
                         yaxis={
@@ -67,6 +68,11 @@ fig.update_layout(autosize=True,
                        "title": "Time",
                        "type": "date",
                         "nticks": 5,
+                       "zeroline": False},
+
+                        zaxis={
+                       "showgrid": True,
+                       "title": "Daily Close",
                        "zeroline": False},
                        aspectmode="manual",
                        aspectratio=dict(x=2, y=4, z=2)
