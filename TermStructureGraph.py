@@ -86,7 +86,7 @@ def create_term_structure_fig(df):
     return fig
 
 
-df = get_term_structure_df("2020-06-10", "2019-01-05", "2020-06-10", "SHFE.rb", 12)
+df = get_term_structure_df("2020-06-10", "2019-01-05", "2020-06-10", "SHFE.hc", 12)
 fig = create_term_structure_fig(df)
 
 app.layout = html.Div(
