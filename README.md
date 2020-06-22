@@ -6,8 +6,8 @@ https://github.com/shinnytech/tqsdk-python
 tqsdk 1.8  
 
 ## Features
-1. Data Downloader 
-2. Products' Klines view and volume display. 
+1. Data downloader  
+2. Single product klines and volume display. 
 3. 3D surface term structure plot. 
 
 ## Usage 
