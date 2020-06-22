@@ -1,10 +1,16 @@
 # TQDataLoader
-TQ DataLoader API Wrapper. Built on tqsdk.    
-https://github.com/shinnytech/tqsdk-python   
+TQ DataLoader API Wrapper. Built on tqsdk.     
+https://github.com/shinnytech/tqsdk-python    
+
+数据下载，数据可视化，数据分析工具。 
 
 ## Requirements  
 tqsdk 1.8  
 
+## Features
+1. Data downloader  
+2. Single product klines and volume display. 
+3. 3D surface term structure plot. 
 
 ## Usage 
 Use `download_data` function to create tasks and downloading data.  
@@ -34,4 +40,7 @@ Example:
 - SSE 上海证券交易所   
 - SZSE 深圳证券交易所  
 
-
+## Resources  
+Why Term structure plot is important?  
+Term structure in commodity products  
+https://legacy.farmdoc.illinois.edu/nccc134/conf_2016/pdf/Etienne_Mattos_NCCC-134_2016.pdf
