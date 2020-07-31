@@ -179,9 +179,9 @@ if __name__ == '__main__':
     # df = read_data('SHFE.rb2010', 'D', "2020-01-10", "2020-06-02")
     # print(df)
 
-    symlist = get_recent_symbols("2020.06.01", 'SHFE.rb', 12)
-    print(symlist)
-    # data_task = download_data(symlist, "2019-01-05", "2020-06-11", 'D')
+    #symlist = get_recent_symbols("2020.06.01", 'SHFE.au', 4)
+    #print(symlist)
+    data_task = download_data(['SHFE.au2012'], "2019-06-01", "2020-07-29", 'D')
     # df_vol = group_view(symlist, 'volume', "2020-05-26", "2020-06-03")
     # print(df_vol)
     # import matplotlib.pyplot as plt
