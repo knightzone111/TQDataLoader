@@ -35,11 +35,11 @@ app.layout = html.Div(children=[
     dcc.Dropdown(id='freq', options=freq_options, style={'width': "40%"}, value='D'),
     dcc.Graph(id='price_graph', figure={}),
     dcc.Graph(id='volume_graph', figure={}),
+    dcc.Graph(id='oi_graph', figure={}),
     html.H4("Data Summary"),
     dash_table.DataTable(id='summary_table'),
 
 ])
-
 
 @app.callback(
     Output(component_id='symbol', component_property='options'),
@@ -61,7 +61,6 @@ def get_available_symbols(exchanges):
 
     return symbol_options
 
-
 @app.callback(
     [Output(component_id='price_graph', component_property='figure'),
      Output(component_id='summary_table', component_property='columns'),
@@ -80,6 +79,7 @@ def update_price_value(exchanges, symbol, freq):
 
     df_summary = dashlib.generate_summary_table(df, symbol)
     data = df_summary.to_dict('records')
+
     columns = [
         {'name': k.capitalize(), 'id': k}
         for k in data[0].keys()
@@ -97,24 +97,23 @@ def update_price_value(exchanges, symbol, freq):
         xaxis_rangeslider_visible=True,
         height=600
     )
-
     return fig, columns, data
 
-
 @app.callback(
-    Output(component_id='volume_graph', component_property='figure'),
+    [Output(component_id='volume_graph', component_property='figure'),
+     Output(component_id='oi_graph', component_property='figure')],
     [Input(component_id='symbol', component_property='value')]
 )
 def update_volume_value(symbol):
     if symbol is None:
-        return {}
+        raise PreventUpdate
 
     root = symbol[:-4]
     start_dt = None
     end_dt = None
     df = DataLoader.read_data(symbol, 'D', start_dt, end_dt)
 
-    fig_dict = dict({
+    volume_fig_dict = dict({
         'data': [
             {'x': df.index, 'y': df[symbol + '.volume'], 'type': 'bar', 'name': symbol}
         ],
@@ -122,8 +121,19 @@ def update_volume_value(symbol):
             'title': symbol + ' volume'
         }
     })
-    fig = go.Figure(fig_dict)
-    return fig
+
+    oi_fig_dict = dict({
+        'data': [
+            {'x': df.index, 'y': df[symbol + '.close_oi']-df[symbol + '.open_oi'], 'type': 'bar', 'name': symbol}
+        ],
+        'layout': {
+            'title': symbol + ' net_oi'
+        }
+    })
+
+    volume_fig = go.Figure(volume_fig_dict)
+    oi_fig_fig = go.Figure(oi_fig_dict)
+    return volume_fig, oi_fig_fig
 
 
 if __name__ == '__main__':
