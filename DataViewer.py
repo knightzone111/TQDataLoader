@@ -36,7 +36,7 @@ app.layout = html.Div(children=[
     dcc.Graph(id='price_graph', figure={}),
     dcc.Graph(id='volume_graph', figure={}),
     dcc.Graph(id='oi_graph', figure={}),
-    html.H4("Data Summary"),
+    html.H3("Data Summary"),
     dash_table.DataTable(id='summary_table'),
 
 ])
@@ -76,7 +76,6 @@ def update_price_value(exchanges, symbol, freq):
     start_dt = None
     end_dt = None
     df = DataLoader.read_data(symbol, freq, start_dt, end_dt)
-
     df_summary = dashlib.generate_summary_table(df, symbol)
     data = df_summary.to_dict('records')
 
