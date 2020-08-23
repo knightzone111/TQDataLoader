@@ -10,6 +10,7 @@ https://github.com/shinnytech/tqsdk-python
 tqsdk 1.8  
 
 ## Features
+Data visualization is built on dash module. Dash is a great package in python dealing with web-based charts and interactive plots.  
 1. Chinese Futures Data downloading and udpating periodically.   
 2. Single product klines and volume display. 
 3. 3D surface term structure plot. 
