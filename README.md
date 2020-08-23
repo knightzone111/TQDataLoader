@@ -1,7 +1,7 @@
 # TQDataLoader
 TQ DataLoader API Wrapper. Built on tqsdk.     
 A robust tool for streamlining the financial data processing, downloading, and visualization.   
-The goal is to develop a data platform that aggregates useful financial data for alpha researching. 
+The goal is to develop a data platform that aggregates useful financial data for alpha researching.    
 https://github.com/shinnytech/tqsdk-python    
 
 数据下载，数据可视化，数据分析工具。 
