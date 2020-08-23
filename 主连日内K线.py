@@ -11,4 +11,4 @@ for symbol, item in quotes.items():
 
 print("number of contracts: ", len(symbol_list))
 
-download_data(symbol_list, "2016-01-01", "2020-08-20", "D")
+download_data(symbol_list, "2016-01-01", "2020-08-30", "D")
