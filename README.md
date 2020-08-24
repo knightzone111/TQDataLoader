@@ -1,5 +1,7 @@
 # TQDataLoader
 TQ DataLoader API Wrapper. Built on tqsdk.     
+A robust tool for streamlining the financial data processing, downloading, and visualization.   
+The goal is to develop a data platform that aggregates useful financial data for alpha researching.    
 https://github.com/shinnytech/tqsdk-python    
 
 数据下载，数据可视化，数据分析工具。 
@@ -8,7 +10,8 @@ https://github.com/shinnytech/tqsdk-python
 tqsdk 1.8  
 
 ## Features
-1. Data downloader  
+Data visualization is built on dash module. Dash is a great package in python dealing with web-based charts and interactive plots.  
+1. Chinese Futures Data downloading and udpating periodically.   
 2. Single product klines and volume display. 
 3. 3D surface term structure plot. 
 
@@ -40,7 +43,4 @@ Example:
 - SSE 上海证券交易所   
 - SZSE 深圳证券交易所  
 
-## Resources  
-Why Term structure plot is important?  
-Term structure in commodity products  
-https://legacy.farmdoc.illinois.edu/nccc134/conf_2016/pdf/Etienne_Mattos_NCCC-134_2016.pdf
+

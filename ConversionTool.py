@@ -41,7 +41,6 @@ app.layout = html.Div(
     ] +
         [html.H3("Result:"), html.Label("Converted Target Price:"), html.Div(id="converted_target_price"), html.Label("Diff(Target-Base):"), html.Div(id = 'diff_target_base_price')]
 
-
 )
 
 @app.callback(

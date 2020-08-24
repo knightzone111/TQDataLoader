@@ -72,7 +72,7 @@ def get_available_symbols(exchanges):
 def update_price_value(exchanges, symbol, freq):
     if symbol is None:
         raise PreventUpdate
-    root = symbol[:-4]
+
     start_dt = None
     end_dt = None
     df = DataLoader.read_data(symbol, freq, start_dt, end_dt)
@@ -86,8 +86,8 @@ def update_price_value(exchanges, symbol, freq):
 
     fig = go.Figure(data=[go.Candlestick(
         x=df.index,
-        open=df[symbol + '.open'], high=df[symbol + '.high'],
-        low=df[symbol + '.low'], close=df[symbol + '.close'],
+        open=df['open'], high=df['high'],
+        low=df['low'], close=df['close'],
         increasing_line_color='red', decreasing_line_color='green'
     )])
 
@@ -107,14 +107,13 @@ def update_volume_value(symbol):
     if symbol is None:
         raise PreventUpdate
 
-    root = symbol[:-4]
     start_dt = None
     end_dt = None
     df = DataLoader.read_data(symbol, 'D', start_dt, end_dt)
 
     volume_fig_dict = dict({
         'data': [
-            {'x': df.index, 'y': df[symbol + '.volume'], 'type': 'bar', 'name': symbol}
+            {'x': df.index, 'y': df['volume'], 'type': 'bar', 'name': symbol}
         ],
         'layout': {
             'title': symbol + ' volume'
@@ -123,7 +122,7 @@ def update_volume_value(symbol):
 
     oi_fig_dict = dict({
         'data': [
-            {'x': df.index, 'y': df[symbol + '.close_oi']-df[symbol + '.open_oi'], 'type': 'bar', 'name': symbol}
+            {'x': df.index, 'y': df['close_oi']-df['open_oi'], 'type': 'bar', 'name': symbol}
         ],
         'layout': {
             'title': symbol + ' net_oi'

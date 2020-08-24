@@ -1,5 +1,6 @@
 from tqsdk import TqApi, TqSim
-from tqsdk.tools import DataDownloader
+#from tqsdk.tools import DataDownloader
+from tqdownloader import DataDownloader
 from contextlib import closing
 from datetime import datetime, timedelta, date
 import os
@@ -15,7 +16,6 @@ from typing import List
 Default_Folder = 'Data'
 if not os.path.exists(Default_Folder):
     os.mkdir(Default_Folder)
-
 
 def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str):
     """
@@ -41,33 +41,28 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str)
 
     api = TqApi(TqSim())
 
-    root_dict = {}
-
+    download_tasks = {}
     # create root folder
     for symbol in symbol_list:
-        root_sym = symbol[:-4]
+        if symbol.split("@")[0] == 'KQ.i':
+            root_sym = symbol.split("@")[1]
+            subfolder = os.path.join(Default_Folder, root_sym)
+            task_name = "{0}_{1}".format(root_sym, freq)
 
-        if root_sym not in root_dict:
-            root_dict[root_sym] = [symbol]
         else:
-            root_dict[root_sym].append(symbol)
+            root_sym = symbol[:-4]
+            subfolder = os.path.join(Default_Folder, root_sym)
+            task_name = "{0}_{1}".format(symbol, freq)
 
-        root_sym_folder = os.path.join(Default_Folder, root_sym)
+        if not os.path.exists(subfolder):
+            os.mkdir(subfolder)
 
-        if not os.path.exists(root_sym_folder):
-            os.mkdir(root_sym_folder)
+        filepath = os.path.join(subfolder, task_name + ".csv")
 
-    for root, symbols in root_dict.items():
-
-        download_tasks = {}
-
-        for symbol in symbols:
-            task = "{0}_{1}".format(symbol, freq)
-            filepath = os.path.join(Default_Folder, root, task + '.csv')
-
+        if task_name not in download_tasks:
             try:
                 # create download task
-                download_tasks[task] = DataDownloader(api, symbol, time_map[freq], _start_dt, _end_dt, filepath)
+                download_tasks[task_name] = DataDownloader(api, symbol, time_map[freq], _start_dt, _end_dt, filepath)
             except Exception as inst:
                 print(inst)
 
@@ -75,15 +70,27 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str)
         while not all([v.is_finished() for v in download_tasks.values()]):
             api.wait_update()
             print("progress: ", {k: ("%.2f%%" % v.get_progress()) for k, v in download_tasks.items()})
-
     return download_tasks
 
 
 def read_data(symbol, freq: str, start_dt: str, end_dt: str, verbose=False):
-    filepath = os.path.join(Default_Folder, symbol[:-4], "{0}_{1}.csv".format(symbol, freq))
+
+    if not symbol[-4:].isdigit(): # 最后四位若不是数字,则是主连
+        root_sym = symbol
+        task_name = "{0}_{1}".format(root_sym, freq)
+
+    else:
+        root_sym = symbol[:-4]
+        task_name = "{0}_{1}".format(symbol, freq)
+
+    filepath = os.path.join(Default_Folder, root_sym, "{0}.csv".format(task_name))
     print(filepath)
     if os.path.exists(filepath):
-        _df = pd.read_csv(filepath, parse_dates=['datetime'], index_col=0)
+
+        data = pd.read_csv(filepath, index_col="datetime")
+        data.index = pd.DatetimeIndex(data.index) # convert string date into datetime
+        _df = data[~data.index.duplicated(keep='first')] # remove duplicated index
+
         if start_dt is None and end_dt is None:
             return _df
 
@@ -181,7 +188,16 @@ if __name__ == '__main__':
 
     #symlist = get_recent_symbols("2020.06.01", 'SHFE.au', 4)
     #print(symlist)
-    data_task = download_data(['SHFE.au2012'], "2019-06-01", "2020-07-31", 'D')
+    data_task = download_data(['SHFE.au2012'], "2019-06-01", "2020-08-31", 'D')
+    #data_task = download_data(['SHFE.ni2010'], "2020-07-29", "2020-07-31", 'tick')
+
+
+    # #append新数据
+    # datas = datas.append(klines)
+    # #去重
+    # data = datas[~datas.index.duplicated(keep='first')]
+    # #保存
+    # data.to_csv("xxx.csv")
     # df_vol = group_view(symlist, 'volume', "2020-05-26", "2020-06-03")
     # print(df_vol)
     # import matplotlib.pyplot as plt
