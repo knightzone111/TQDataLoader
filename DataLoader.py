@@ -90,6 +90,7 @@ def read_data(symbol, freq: str, start_dt: str, end_dt: str, verbose=False):
         data = pd.read_csv(filepath, index_col="datetime")
         data.index = pd.DatetimeIndex(data.index) # convert string date into datetime
         _df = data[~data.index.duplicated(keep='first')] # remove duplicated index
+        _df = _df.dropna()
 
         if start_dt is None and end_dt is None:
             return _df
