@@ -95,7 +95,7 @@ class DataDownloader:
             old_end_nano = self._str_to_nano(df_old.index[-1])
 
 
-            print(old_start_nano, old_end_nano, self._start_dt_nano, self._end_dt_nano)
+            #print(old_start_nano, old_end_nano, self._start_dt_nano, self._end_dt_nano)
             print("{0} exists. old_start: {1}, old_end:{2}, new_start:{3}, new_end:{4}.".format(self._csv_file_name, self._nano_to_dt(old_start_nano), self._nano_to_dt(old_end_nano), self._nano_to_dt(self._start_dt_nano), self._nano_to_dt(self._end_dt_nano)))
 
             if self._end_dt_nano <= old_start_nano or old_end_nano <= self._start_dt_nano:
@@ -112,9 +112,7 @@ class DataDownloader:
                 print('3')
                 self._start_dt_nano = old_end_nano
                 self._current_dt_nano = self._start_dt_nano
-                print("start_dt_nano:", self._start_dt_nano)
 
-                print((self._end_dt_nano-self._current_dt_nano)/(self._end_dt_nano-self._start_dt_nano))
                 self.combine_finished = False
 
             elif old_start_nano <= self._start_dt_nano < self._end_dt_nano <= old_end_nano:
@@ -145,7 +143,6 @@ class DataDownloader:
                 self._end_dt_nano - self._start_dt_nano) * 100
 
     async def _download_data(self):
-        print("download_data: start_nano: ", self._start_dt_nano)
         """下载数据, 多合约横向按时间对齐"""
         chart_info = {
             "aid": "set_chart",
