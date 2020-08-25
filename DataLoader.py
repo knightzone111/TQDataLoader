@@ -17,13 +17,13 @@ Default_Folder = 'Data'
 if not os.path.exists(Default_Folder):
     os.mkdir(Default_Folder)
 
-def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str):
+def download_data(symbol_list: List[str], start_dt: datetime, end_dt: datetime, freq: str):
     """
     :param symbol_list: a list of symbols
     :type symbol_list: List[str]
-    :param start_dt: start date
+    :param start_dt: start date, default time of the day is 08:00
     :type start_dt: str, datetime
-    :param end_dt: end date
+    :param end_dt: end date, default time of the day is 08:00
     :type end_dt: str, datetime
     :param freq: one of the data frequency, "tick", "s", "min", "5min", "h", "D"
     :type freq: str
@@ -36,8 +36,10 @@ def download_data(symbol_list: List[str], start_dt: str, end_dt: str, freq: str)
     if freq not in time_map:
         raise Exception("freq entered is not in the time_map.")
 
-    _start_dt = pd.to_datetime(start_dt)
-    _end_dt = pd.to_datetime(end_dt)
+    _start_dt = start_dt
+    _end_dt = end_dt
+    if start_dt > end_dt:
+        raise Exception("Start time has to be earlier than the end datetime.")
 
     api = TqApi(TqSim())
 
@@ -89,8 +91,8 @@ def read_data(symbol, freq: str, start_dt: str, end_dt: str, verbose=False):
 
         data = pd.read_csv(filepath, index_col="datetime")
         data.index = pd.DatetimeIndex(data.index) # convert string date into datetime
-        _df = data[~data.index.duplicated(keep='first')] # remove duplicated index
-        _df = _df.dropna()
+        data = data[~data.index.duplicated(keep='first')] # remove duplicated index
+        _df = data.dropna()
 
         if start_dt is None and end_dt is None:
             return _df
@@ -182,6 +184,7 @@ def quick_daily_data_download(root_list):
         download_data(symlist, start_dt, today, 'D')
 
 
+
 if __name__ == '__main__':
     # data_task = download_data(["SHFE.rb2010","SHFE.ni2008", "SHFE.ni2009", ], "2020-01-01", "2020-06-11", 'D')
     # df = read_data('SHFE.rb2010', 'D', "2020-01-10", "2020-06-02")
@@ -189,7 +192,8 @@ if __name__ == '__main__':
 
     #symlist = get_recent_symbols("2020.06.01", 'SHFE.au', 4)
     #print(symlist)
-    data_task = download_data(['SHFE.au2012'], "2019-06-01", "2020-08-31", 'D')
+
+    data_task = download_data(['SHFE.au2012'], datetime(2020,8,7,0,0), datetime(2020,8,11,0,0), 'tick')
     #data_task = download_data(['SHFE.ni2010'], "2020-07-29", "2020-07-31", 'tick')
 
 

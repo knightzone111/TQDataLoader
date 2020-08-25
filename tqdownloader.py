@@ -1,17 +1,21 @@
 import csv
 from datetime import date, datetime
 from typing import Union, List
-
+import os
 from tqsdk.api import TqApi
 from tqsdk.datetime import _get_trading_day_start_time, _get_trading_day_end_time
 from tqsdk.diff import _get_obj
 from tqsdk.utils import _generate_uuid
+import pandas as pd
 
 
 class DataDownloader:
     """
     历史数据下载器, 输出到csv文件
     多合约按时间横向对齐
+
+    在天勤的downloader基础上改动：
+    1. One file, one product
     """
 
     def __init__(self, api: TqApi, symbol_list: Union[str, List[str]], dur_sec: int, start_dt: Union[date, datetime],
@@ -56,11 +60,13 @@ class DataDownloader:
         if isinstance(start_dt, datetime):
             self._start_dt_nano = int(start_dt.timestamp() * 1e9)
         else:
-            self._start_dt_nano = _get_trading_day_start_time(int(datetime(start_dt.year, start_dt.month, start_dt.day).timestamp()) * 1000000000)
+            self._start_dt_nano = _get_trading_day_start_time(
+                int(datetime(start_dt.year, start_dt.month, start_dt.day).timestamp()) * 1000000000)
         if isinstance(end_dt, datetime):
             self._end_dt_nano = int(end_dt.timestamp() * 1e9)
         else:
-            self._end_dt_nano = _get_trading_day_end_time(int(datetime(end_dt.year, end_dt.month, end_dt.day).timestamp()) * 1000000000)
+            self._end_dt_nano = _get_trading_day_end_time(
+                int(datetime(end_dt.year, end_dt.month, end_dt.day).timestamp()) * 1000000000)
         self._current_dt_nano = self._start_dt_nano
         self._symbol_list = symbol_list if isinstance(symbol_list, list) else [symbol_list]
         # 检查合约代码是否存在
@@ -71,7 +77,54 @@ class DataDownloader:
         if self._dur_nano == 0 and len(self._symbol_list) != 1:
             raise Exception("Tick序列不支持多合约")
         self._csv_file_name = csv_file_name
-        self._task = self._api.create_task(self._download_data())
+        self.combine_finished = False
+        self.df_old = pd.DataFrame([])
+        self.read_existing_csv()
+        if not self.combine_finished:
+            self._task = self._api.create_task(self._download_data())
+
+        self.data = []
+
+    def read_existing_csv(self):
+        if os.path.exists(self._csv_file_name):
+            df_old = pd.read_csv(self._csv_file_name, index_col='datetime', dtype=object)
+
+            self.df_old = df_old
+
+            old_start_nano = self._str_to_nano(df_old.index[0])
+            old_end_nano = self._str_to_nano(df_old.index[-1])
+
+
+            print(old_start_nano, old_end_nano, self._start_dt_nano, self._end_dt_nano)
+            print("{0} exists. old_start: {1}, old_end:{2}, new_start:{3}, new_end:{4}.".format(self._csv_file_name, self._nano_to_dt(old_start_nano), self._nano_to_dt(old_end_nano), self._nano_to_dt(self._start_dt_nano), self._nano_to_dt(self._end_dt_nano)))
+
+            if self._end_dt_nano <= old_start_nano or old_end_nano <= self._start_dt_nano:
+                print('1')
+                # 不重合完全拼接, 拼接是否完成取决于瓶颈
+                self.combine_finished = False
+
+            elif self._start_dt_nano < old_start_nano < self._end_dt_nano <= old_end_nano:
+                print('2')
+                self._end_dt_nano = old_start_nano
+                self.combine_finished = False
+
+            elif old_start_nano <= self._start_dt_nano < old_end_nano < self._end_dt_nano:
+                print('3')
+                self._start_dt_nano = old_end_nano
+                self._current_dt_nano = self._start_dt_nano
+                print("start_dt_nano:", self._start_dt_nano)
+
+                print((self._end_dt_nano-self._current_dt_nano)/(self._end_dt_nano-self._start_dt_nano))
+                self.combine_finished = False
+
+            elif old_start_nano <= self._start_dt_nano < self._end_dt_nano <= old_end_nano:
+                print('4:', old_start_nano, self._start_dt_nano, self._end_dt_nano, old_end_nano)
+
+                self.combine_finished = True
+
+            else:
+                print('5')
+                self.combine_finished = False
 
     def is_finished(self) -> bool:
         """
@@ -79,7 +132,8 @@ class DataDownloader:
         Returns:
             bool: 如果数据下载完成则返回 True, 否则返回 False.
         """
-        return self._task.done()
+
+        return self.combine_finished or self._task.done()
 
     def get_progress(self) -> float:
         """
@@ -91,6 +145,7 @@ class DataDownloader:
                 self._end_dt_nano - self._start_dt_nano) * 100
 
     async def _download_data(self):
+        print("download_data: start_nano: ", self._start_dt_nano)
         """下载数据, 多合约横向按时间对齐"""
         chart_info = {
             "aid": "set_chart",
@@ -114,9 +169,8 @@ class DataDownloader:
             path = ["klines", symbol, str(self._dur_nano)] if self._dur_nano != 0 else ["ticks", symbol]
             serial = _get_obj(self._api._data, path)
             serials.append(serial)
+
         try:
-            with open(self._csv_file_name, 'w', newline='') as csvfile:
-                csv_writer = csv.writer(csvfile, dialect='excel')
                 async with self._api.register_update_notify() as update_chan:
                     async for _ in update_chan:
                         if not (chart_info.items() <= _get_obj(chart, ["state"]).items()):
@@ -133,29 +187,21 @@ class DataDownloader:
                                 continue
                         if current_id is None:
                             current_id = max(left_id, 0)
+
                         while current_id <= right_id:
-                            item = serials[0]["data"].get(str(current_id), {})
+                            item = serials[0]["data"].get(str(current_id), {})  # 新数据
+
                             if item.get("datetime", 0) == 0 or item["datetime"] > self._end_dt_nano:
                                 # 当前 id 已超出 last_id 或k线数据的时间已经超过用户限定的右端
                                 return
-                            if len(csv_header) == 0:
-                                # 写入文件头
-                                csv_header = ["datetime"]
-                                for symbol in self._symbol_list:
-                                    for col in data_cols:
-                                        csv_header.append(col)
-                                csv_writer.writerow(csv_header)
+
                             row = [self._nano_to_str(item["datetime"])]
                             for col in data_cols:
                                 row.append(self._get_value(item, col))
-                            for i in range(1, len(self._symbol_list)):
-                                symbol = self._symbol_list[i]
-                                tid = serials[0].get("binding", {}).get(symbol, {}).get(str(current_id), -1)
-                                k = {} if tid == -1 else serials[i]["data"].get(str(tid), {})
-                                for col in data_cols:
-                                    row.append(self._get_value(k, col))
-                            csv_writer.writerow(row)
+
+                            self.data.append(row)
                             current_id += 1
+
                             self._current_dt_nano = item["datetime"]
                         # 当前 id 已超出订阅范围, 需重新订阅后续数据
                         chart_info.pop("focus_datetime", None)
@@ -172,6 +218,19 @@ class DataDownloader:
                 "view_width": 2000,
             })
 
+            # generate dataframe from collection of data rows.
+            csv_header = ["datetime"] + data_cols
+            df = pd.DataFrame(self.data, columns=csv_header)
+            df.set_index("datetime", inplace=True)
+
+            if not self.df_old.empty:
+                df = self.df_old.append(df)
+
+            df = df[~df.index.duplicated(keep='first')]  # remove duplicated index
+            df = df.sort_index() # sort index
+            df.to_csv(self._csv_file_name)
+            self.df = df
+
     @staticmethod
     def _get_value(obj, key):
         if key not in obj:
@@ -182,7 +241,42 @@ class DataDownloader:
 
     @staticmethod
     def _nano_to_str(nano):
+        """
+        the new time string has accuracy in milliseconds.
+        :param nano:
+        :type nano:
+        :return:
+        :rtype:
+        """
         dt = datetime.fromtimestamp(nano // 1000000000)
+        milli = (nano % 1000000000) // 1000000
         s = dt.strftime('%Y-%m-%d %H:%M:%S')
-        s += '.' + str(int(nano % 1000000000)).zfill(9)
+        s += '.' + str(milli).zfill(3)
         return s
+
+    @staticmethod
+    def _nano_to_dt(nano):
+        """
+        the new time string has accuracy in milliseconds.
+        :param nano:
+        :type nano:
+        :return:
+        :rtype:
+        """
+        milli = nano//1000000
+        secs = milli/1000
+        dt = datetime.fromtimestamp(secs)
+        return dt
+
+    @staticmethod
+    def _str_to_nano(time_str):
+        """
+        the nano returned has to be an integer, otherwise it gonna cause trouble requesting the chart data.
+        :param time_str:
+        :type time_str:
+        :return:
+        :rtype: int
+        """
+        dt = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S.%f')
+        nano = int(dt.timestamp()*1e9)
+        return nano
