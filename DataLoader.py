@@ -72,6 +72,7 @@ def download_data(symbol_list: List[str], start_dt: datetime, end_dt: datetime, 
         while not all([v.is_finished() for v in download_tasks.values()]):
             api.wait_update()
             print("progress: ", {k: ("%.2f%%" % v.get_progress()) for k, v in download_tasks.items()})
+    print("tasks finished.")
     return download_tasks
 
 
@@ -193,7 +194,7 @@ if __name__ == '__main__':
     #symlist = get_recent_symbols("2020.06.01", 'SHFE.au', 4)
     #print(symlist)
 
-    data_task = download_data(['SHFE.au2012'], datetime(2020,8,7,0,0), datetime(2020,8,11,0,0), 'tick')
+    data_task = download_data(['SHFE.au2012'], datetime(2020,8,3,0,0), datetime(2020,8,11,0,0), 'tick')
     #data_task = download_data(['SHFE.ni2010'], "2020-07-29", "2020-07-31", 'tick')
 
 

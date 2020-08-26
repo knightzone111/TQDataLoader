@@ -1,6 +1,7 @@
 from tqsdk import TqApi
 from DataLoader import download_data, read_data
 import pandas as pd
+from datetime import datetime
 
 api = TqApi()
 quotes = api._data["quotes"]
@@ -12,7 +13,7 @@ for symbol, item in quotes.items():
 
 print("number of contracts: ", len(symbol_list))
 
-#download_data(symbol_list, "2016-01-01", "2020-08-30", "D")
+download_data(symbol_list, datetime(2016,1,1), datetime(2020,8,30), "D")
 
 data = []
 cols = []

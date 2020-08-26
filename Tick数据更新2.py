@@ -10,4 +10,6 @@ for symbol, item in quotes.items():
     if item['ins_class'] == 'FUTURE':
         symbols.append(symbol)
 
-download_data(symbols[10:100], datetime(2016,1,1,0,0), datetime(2020,8,31,0,0), "tick")
+print(len(symbols))
+
+download_data(symbols[10:1000], datetime(2016,1,1,0,0), datetime(2020,8,31,0,0), "tick")
