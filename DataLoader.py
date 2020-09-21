@@ -87,6 +87,7 @@ def read_data(symbol, freq: str, start_dt: str, end_dt: str, verbose=False):
 
     filepath = os.path.join(Default_Folder, root_sym, "{0}.csv".format(task_name))
     print(filepath)
+
     if os.path.exists(filepath):
 
         data = pd.read_csv(filepath, index_col="datetime")
