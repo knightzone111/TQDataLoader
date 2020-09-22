@@ -10,12 +10,6 @@ for symbol, item in quotes.items():
     if item['ins_class'] == 'FUTURE':
         symbols.append(symbol)
 
-<<<<<<< HEAD
-print(len(symbols))
-
-download_data(symbols[10:1000], datetime(2016,1,1,0,0), datetime(2020,8,31,0,0), "tick")
-=======
-download_data(symbols[1000:1500], datetime(2016,1,1), datetime(2020,8,25), "tick")
+download_data(symbols[500:1500], datetime(2016,1,1), datetime(2020,8,31), "tick")
 #download_data(symbols, datetime(2016,1,1), datetime(2020,8,25), "D")
 
->>>>>>> origin/master

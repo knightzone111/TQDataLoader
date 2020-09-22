@@ -14,6 +14,7 @@ Data visualization is built on dash module. Dash is a great package in python de
 1. Chinese Futures Data downloading and udpating periodically.   
 2. Single product klines and volume display. 
 3. 3D surface term structure plot. 
+4. Automated data loading. 
 
 ## Usage 
 Use `download_data` function to create tasks and downloading data.  
