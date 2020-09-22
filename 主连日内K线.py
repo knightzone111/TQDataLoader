@@ -14,14 +14,13 @@ for symbol, item in quotes.items():
 
 print("number of contracts: ", len(symbol_list))
 
-download_data(symbol_list, datetime(2016,1,1,0,0), datetime(2020,8,31,0,0), "tick")
-api.close()
+#download_data(symbol_list, datetime(2016,1,1), datetime(2020,8,30), "min")
 
 data = []
 cols = []
 for symbol in symbol_list:
     symbol = symbol.split('@')[1]
-    ds = read_data(symbol, 'tick', None, None)
+    ds = read_data(symbol, 'min', None, None)
     data.append(ds['close'])
     cols.append(symbol)
 

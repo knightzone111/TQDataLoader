@@ -20,7 +20,7 @@ dcc.Input(placeholder='Target Contracts', type='numbers')
 base_price = 430.80
 target_price = 1947.3
 measure_unit = 31.1034768
-cnyusd = 6.92
+cnyusd = 6.8
 
 unit_options = {"ounce/g": 31.1034}
 currency_options = {"CNY/USD": 7.0}
