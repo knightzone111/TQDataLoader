@@ -46,9 +46,9 @@ def download_data(symbol_list: List[str], start_dt: datetime, end_dt: datetime, 
     download_tasks = {}
     # create root folder
     for symbol in symbol_list:
-        if symbol.split("@")[0] == 'KQ.i':
+        if symbol.split("@")[0] == 'KQ.m':
             root_sym = symbol.split("@")[1]
-            subfolder = os.path.join(Default_Folder, root_sym)
+            subfolder = os.path.join(Default_Folder, "KQ")
             task_name = "{0}_{1}".format(root_sym, freq)
 
         else:
@@ -60,6 +60,7 @@ def download_data(symbol_list: List[str], start_dt: datetime, end_dt: datetime, 
             os.mkdir(subfolder)
 
         filepath = os.path.join(subfolder, task_name + ".csv")
+        print(filepath)
 
         if task_name not in download_tasks:
             try:
@@ -194,8 +195,7 @@ if __name__ == '__main__':
     #symlist = get_recent_symbols("2020.06.01", 'SHFE.au', 4)
     #print(symlist)
 
-    data_task = download_data(['SHFE.au2012'], datetime(2020,8,3,0,0), datetime(2020,8,11,0,0), 'tick')
-    #data_task = download_data(['SHFE.ni2010'], "2020-07-29", "2020-07-31", 'tick')
+    data_task = download_data(['KQ.m@SHFE.rb'], datetime(2020,8,28,0,0), datetime(2020,8,31,0,0), 'tick')
 
 
     # #append新数据
