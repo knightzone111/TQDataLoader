@@ -14,6 +14,7 @@ Data visualization is built on dash module. Dash is a great package in python de
 1. Chinese Futures Data downloading and udpating periodically.   
 2. Single product klines and volume display. 
 3. 3D surface term structure plot. 
+4. Automated data loading. 
 
 ## Usage 
 Use `download_data` function to create tasks and downloading data.  
@@ -43,4 +44,70 @@ Example:
 - SSE 上海证券交易所   
 - SZSE 深圳证券交易所  
 
-
+## 天勤期货主连：   
+KQ.i@CFFEX.IF  
+KQ.i@CFFEX.IH  
+KQ.i@CFFEX.IC  
+KQ.i@CFFEX.TF  
+KQ.i@CFFEX.T  
+KQ.i@SHFE.cu  
+KQ.i@SHFE.au  
+KQ.i@SHFE.ag  
+KQ.i@SHFE.zn  
+KQ.i@SHFE.al  
+KQ.i@SHFE.ru  
+KQ.i@SHFE.rb  
+KQ.i@SHFE.fu  
+KQ.i@SHFE.hc  
+KQ.i@SHFE.bu  
+KQ.i@SHFE.pb  
+KQ.i@SHFE.ni  
+KQ.i@SHFE.sn  
+KQ.i@SHFE.wr  
+KQ.i@INE.sc  
+KQ.i@DCE.a  
+KQ.i@DCE.b  
+KQ.i@DCE.bb  
+KQ.i@DCE.c  
+KQ.i@DCE.cs  
+KQ.i@DCE.fb  
+KQ.i@DCE.i  
+KQ.i@DCE.j  
+KQ.i@DCE.jd  
+KQ.i@DCE.jm  
+KQ.i@DCE.l  
+KQ.i@DCE.m  
+KQ.i@DCE.p  
+KQ.i@DCE.pp  
+KQ.i@DCE.v  
+KQ.i@DCE.y  
+KQ.i@CZCE.WH  
+KQ.i@CZCE.PM  
+KQ.i@CZCE.CF  
+KQ.i@CZCE.CY  
+KQ.i@CZCE.SR  
+KQ.i@CZCE.TA  
+KQ.i@CZCE.OI  
+KQ.i@CZCE.RI  
+KQ.i@CZCE.MA  
+KQ.i@CZCE.FG  
+KQ.i@CZCE.RS  
+KQ.i@CZCE.RM  
+KQ.i@CZCE.ZC  
+KQ.i@CZCE.JR  
+KQ.i@CZCE.LR  
+KQ.i@CZCE.SF  
+KQ.i@CZCE.SM  
+KQ.i@CZCE.AP  
+KQ.i@CFFEX.TS  
+KQ.i@SHFE.sp  
+KQ.i@DCE.eg  
+KQ.i@CZCE.CJ  
+KQ.i@INE.nr  
+KQ.i@DCE.rr  
+KQ.i@CZCE.UR  
+KQ.i@SHFE.ss  
+KQ.i@DCE.eb  
+KQ.i@CZCE.SA  
+KQ.i@DCE.pg  
+KQ.i@INE.lu  
