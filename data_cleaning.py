@@ -5,15 +5,17 @@ import os
 
 start_time = "09:00:00"
 end_time = "23:59:59"
-break_start = "15:00:00"
-break_end = "20:59:59"
+break1_start = "15:00:00"
+break1_end = "20:59:59"
+
+break2_start = ""
 
 start_date = "2020-01-01"
 end_date = "2020-08-31"
 symbol = "SHFE.rb2101"
 freq = 'tick'
 
-DATA_FOLDER_PATH = "C:\\Users\\kzchi\\PycharmProjects\\Data"
+DATA_FOLDER_PATH = "C:\\Users\\kzchi\\PycharmProjects\\TQDataLoader\\Data"
 CLEAN_FOLDER_PATH = "CleanData"
 
 subfolder_path = "SHFE.rb"

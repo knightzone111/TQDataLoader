@@ -196,7 +196,7 @@ if __name__ == '__main__':
     #symlist = get_recent_symbols("2020.06.01", 'SHFE.au', 4)
     #print(symlist)
 
-    data_task = download_data(['KQ.m@SHFE.rb'], datetime(2020,8,28,0,0), datetime(2020,8,31,0,0), 'tick')
+    data_task = download_data(['SHFE.rb2101', 'SHFE.hc2101', 'DCE.j2101'], datetime(2020,1,1,0,0), datetime(2020,8,31,0,0), 'tick')
 
 
     # #append新数据
